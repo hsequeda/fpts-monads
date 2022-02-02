@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { IResultError } from './IResultError';
 import { Result } from './Result';
 
 class Some<A> implements Optional<A> {
@@ -52,17 +51,17 @@ class Some<A> implements Optional<A> {
     return func(this.a);
   }
 
-  okOr<E extends IResultError>(_: E): Result<A> {
+  okOr<E extends Error>(_: E): Result<A> {
     return Result.Ok(this.a);
   }
 
-  okOrElse<E extends IResultError>(_: () => E): Result<A, IResultError> {
+  okOrElse<E extends Error>(_: () => E): Result<A, Error> {
     return Result.Ok(this.a);
   }
 
-  async okOrElseAsync<E extends IResultError>(
+  async okOrElseAsync<E extends Error>(
     _: () => Promise<E>
-  ): Promise<Result<A, IResultError>> {
+  ): Promise<Result<A, Error>> {
     return Result.Ok(this.a);
   }
 
@@ -164,19 +163,17 @@ const None: Optional<any> = {
     return defFunc();
   },
 
-  okOr<E extends IResultError>(err: E): Result<any> {
+  okOr<E extends Error>(err: E): Result<any> {
     return Result.Fail(err);
   },
 
-  okOrElse<E extends IResultError>(
-    errFunc: () => E
-  ): Result<any, IResultError> {
+  okOrElse<E extends Error>(errFunc: () => E): Result<any, Error> {
     return Result.Fail(errFunc());
   },
 
-  async okOrElseAsync<E extends IResultError>(
+  async okOrElseAsync<E extends Error>(
     errFunc: () => Promise<E>
-  ): Promise<Result<any, IResultError>> {
+  ): Promise<Result<any, Error>> {
     return Result.Fail(await errFunc());
   },
 
@@ -377,7 +374,7 @@ interface Optional<A> {
    * @returns  {Result<A>}
    * @memberof Optional
    */
-  okOr<E extends IResultError>(err: E): Result<A>;
+  okOr<E extends Error>(err: E): Result<A>;
 
   /**
    * Transforms the Option<T> into a Result<T, E>, mapping 'Some(v)' to 'Ok(v)' and 'None' to 'Err(func())'.
@@ -387,7 +384,7 @@ interface Optional<A> {
    * @returns  {Result<A>}
    * @memberof Optional
    */
-  okOrElse<E extends IResultError>(errFunc: () => E): Result<A>;
+  okOrElse<E extends Error>(errFunc: () => E): Result<A>;
 
   /**
    * Transforms the Option<T> into a Result<T, E>, mapping 'Some(v)' to 'Ok(v)' and 'None' to 'Err(func())'.
@@ -397,9 +394,7 @@ interface Optional<A> {
    * @returns  {Promise<Result<A>>}
    * @memberof Optional
    */
-  okOrElseAsync<E extends IResultError>(
-    errFunc: () => Promise<E>
-  ): Promise<Result<A>>;
+  okOrElseAsync<E extends Error>(errFunc: () => Promise<E>): Promise<Result<A>>;
 
   /**
    * Applies the 'some' function if is 'Some(v)' and the 'none' function if is 'None'.

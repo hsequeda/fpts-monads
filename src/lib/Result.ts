@@ -1,7 +1,6 @@
-import { IResultError } from './IResultError';
 import Optional from './Optional';
 
-export class Result<R, E extends IResultError = IResultError> {
+export class Result<R, E extends Error = Error> {
   public isSuccess: boolean;
   public isFailure: boolean;
   private _error: E;
@@ -152,7 +151,7 @@ export class Result<R, E extends IResultError = IResultError> {
    * @returns  {Promise<Result<R, F>>}
    * @memberof Result
    */
-  public async mapOrErrorAsync<F extends IResultError = IResultError>(
+  public async mapOrErrorAsync<F extends Error = Error>(
     func: (a: E) => Promise<F>
   ): Promise<Result<R, F>> {
     return this.isFailure
@@ -170,9 +169,7 @@ export class Result<R, E extends IResultError = IResultError> {
    * @returns  {Result<R, F>}
    * @memberof Result
    */
-  public mapOrError<F extends IResultError = IResultError>(
-    func: (a: E) => F
-  ): Result<R, F> {
+  public mapOrError<F extends Error = Error>(func: (a: E) => F): Result<R, F> {
     return this.isFailure
       ? Result.Fail<R, F>(func(this._error))
       : Result.Ok<R, F>(this._value);
@@ -228,9 +225,7 @@ export class Result<R, E extends IResultError = IResultError> {
    * @returns  {Result<R, F>}
    * @memberof Result
    */
-  public or<F extends IResultError = IResultError>(
-    res: Result<R, F>
-  ): Result<R, F> {
+  public or<F extends Error = Error>(res: Result<R, F>): Result<R, F> {
     return this.isSuccess ? Result.Ok<R, F>(this._value) : res;
   }
 
@@ -243,7 +238,7 @@ export class Result<R, E extends IResultError = IResultError> {
    * @returns  {Promise<Result<R, F>>}
    * @memberof Result
    */
-  public async orElseAsync<F extends IResultError = IResultError>(
+  public async orElseAsync<F extends Error = Error>(
     func: (err: E) => Promise<Result<R, F>>
   ): Promise<Result<R, F>> {
     return this.isSuccess ? Result.Ok<R, F>(this._value) : func(this._error);
@@ -258,7 +253,7 @@ export class Result<R, E extends IResultError = IResultError> {
    * @returns  {Result<R, F>}
    * @memberof Result
    */
-  public orElse<F extends IResultError = IResultError>(
+  public orElse<F extends Error = Error>(
     func: (err: E) => Result<R, F>
   ): Result<R, F> {
     return this.isSuccess ? Result.Ok<R, F>(this._value) : func(this._error);
@@ -283,7 +278,8 @@ export class Result<R, E extends IResultError = IResultError> {
    * @memberof Result
    */
   public unwrap(): R {
-    if (this.isFailure) this._error.throw();
+    if (this.isFailure)
+      throw new Error('InvalidOperation: Cannot unwrap a Result of type Err');
     return this._value;
   }
 
@@ -343,9 +339,7 @@ export class Result<R, E extends IResultError = IResultError> {
    * @returns  {Result<U, E>}
    * @memberof Result
    */
-  public static Ok<U, E extends IResultError = IResultError>(
-    value?: U
-  ): Result<U, E> {
+  public static Ok<U, E extends Error = Error>(value?: U): Result<U, E> {
     return new Result<U, E>(true, null, value);
   }
 
@@ -359,9 +353,7 @@ export class Result<R, E extends IResultError = IResultError> {
    * @returns  {Result<U, E>}
    * @memberof Result
    */
-  public static Fail<U, E extends IResultError = IResultError>(
-    error: E
-  ): Result<U, E> {
+  public static Fail<U, E extends Error = Error>(error: E): Result<U, E> {
     return new Result<U, E>(false, error);
   }
 
